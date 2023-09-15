@@ -1,0 +1,49 @@
+# Port for local testing
+server.port: 8087
+
+server:
+  error:
+    include-message: always
+    include-stacktrace: on_param
+    include-exception: false
+
+  # Enabling http2 should increase performance in most cases, but best to check if it really does
+  # Note that it only works when using https.
+  http2:
+    enabled: true
+
+  compression:
+    enabled: true
+    min-response-size: 4096
+    mime-types: application/json, application/ld+json, application/xml, text/html, text/xml, text/plain
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+
+  info:
+    env:
+      enabled: true
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+
+# Creates a redirect from /console to /swagger-ui/index.html
+springdoc:
+  swagger-ui:
+    path: /console
+  # Don't include Error controller in API commons
+  paths-to-exclude: /error
+
+
