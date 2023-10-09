@@ -40,6 +40,10 @@ public class EmbeddingsService {
     private List<ProcessExecutor> executors;
     private ObjectMapper serializer;
 
+    /**
+     * Initialize a new Embeddings Service
+     * @param settings application settings
+     */
     public EmbeddingsService(EmbeddingSettings settings) {
         this.settings = settings;
         this.executors = Collections.synchronizedList(new ArrayList<ProcessExecutor>(settings.getEmbedCmdMaxInstances()));
@@ -59,6 +63,8 @@ public class EmbeddingsService {
         checkPythonVersion();
     }
 
+    @SuppressWarnings("java:S2142") // no need to warn for no handling InterruptedException as the executor will
+    // clean up after itself
     private String runSimpleCommand(String... commands) {
         String result = null;
         try {
@@ -93,6 +99,8 @@ public class EmbeddingsService {
      * @return EmbeddingResponse object
      * @throws EuropeanaApiException if there's a problem generating the vectors
      */
+    @SuppressWarnings("java:S2142") // no need to warn for no handling InterruptedException as the executor will
+     // clean up after itself
     public EmbeddingResponse generateEmbeddings(EmbeddingRequestData data) throws EuropeanaApiException {
         String output = null;
         ProcessExecutor executor = null;
