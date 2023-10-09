@@ -1,9 +1,11 @@
 package eu.europeana.api.embedding.config;
 
+import eu.europeana.api.embedding.service.EmbeddingsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,6 +22,9 @@ public class SpringDocConfigTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private EmbeddingsService embeddingsService;
 
     /**
      * Test if the /v3/api-docs endpoint is available and if CORS is enabled for it

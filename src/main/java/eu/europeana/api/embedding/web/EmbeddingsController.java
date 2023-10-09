@@ -1,8 +1,9 @@
 package eu.europeana.api.embedding.web;
 
+import eu.europeana.api.commons.error.EuropeanaApiException;
 import eu.europeana.api.embedding.service.EmbeddingsService;
 import eu.europeana.api.recommend.common.model.EmbeddingRequestData;
-import eu.europeana.api.recommend.common.model.RecordVectors;
+import eu.europeana.api.recommend.common.model.EmbeddingResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,9 +24,12 @@ public class EmbeddingsController {
 
     /**
      * Here we mimic the original Embeddings API endpoint
+     * @param embeddingRequestData data to process
+     * @return EmbeddingsResponse object
+     * @throws EuropeanaApiException if there is a problem generating embeddings
      */
     @PostMapping(value = "/embedding_api/embeddings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public RecordVectors embeddings(@RequestBody EmbeddingRequestData embeddingRequestData) {
+    public EmbeddingResponse embeddings(@RequestBody EmbeddingRequestData embeddingRequestData) throws EuropeanaApiException {
         return embeddingsService.generateEmbeddings(embeddingRequestData);
     }
 

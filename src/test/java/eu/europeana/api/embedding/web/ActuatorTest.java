@@ -1,9 +1,11 @@
 package eu.europeana.api.embedding.web;
 
+import eu.europeana.api.embedding.service.EmbeddingsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -20,6 +22,8 @@ public class ActuatorTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private EmbeddingsService embeddingsService;
 
     @Test
     public void testActuatorInfo() throws Exception {

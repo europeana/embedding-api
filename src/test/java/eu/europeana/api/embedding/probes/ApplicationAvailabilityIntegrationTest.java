@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import eu.europeana.api.embedding.service.EmbeddingsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.availability.ApplicationAvailability;
@@ -14,6 +15,7 @@ import org.springframework.boot.availability.LivenessState;
 import org.springframework.boot.availability.ReadinessState;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +30,8 @@ public class ApplicationAvailabilityIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private ApplicationContext context;
     @Autowired private ApplicationAvailability applicationAvailability;
+    @MockBean
+    private EmbeddingsService embeddingsService;
 
     @Test
     public void givenApplication_whenStarted_thenShouldBeAbleToRetrieveReadinessAndLiveness() {

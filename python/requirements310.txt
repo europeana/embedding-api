@@ -1,0 +1,17 @@
+Jinja2==3.0.1
+joblib==1.1.1
+laserembeddings==1.1.1
+MarkupSafe==2.0.1
+numpy==1.21.6
+psutil==5.8.0
+sacremoses==0.0.35
+scikit-learn==1.2
+scipy==1.7.3
+six==1.16.0
+subword-nmt==0.3.7
+torch==1.11.0
+tqdm==4.62.3
+transliterate==1.10.2
+typing-extensions==3.10.0.2
+Werkzeug==2.0.1
+zipp==3.6.0
