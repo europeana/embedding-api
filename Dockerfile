@@ -20,4 +20,4 @@ ADD https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/$ELASTIC_APM
 WORKDIR /opt/embedding-api
 COPY target/embedding.war/ .
 
-ENTRYPOINT ["java","-jar","/opt/embedding-api/embedding.war"]
+ENTRYPOINT ["java","-jar","/opt/embedding-api/embedding.war --server.port=8080"]

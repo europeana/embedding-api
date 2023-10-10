@@ -1,4 +1,4 @@
-# Port for local testing
+# Port for local testing (we override this property in our Dockerfile)
 server.port: 8087
 
 server:
