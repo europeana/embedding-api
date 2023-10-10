@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - name: myapi
+        - name: embedding-api
           image: europeana/embedding-api
           ports:
             - containerPort: 8080
@@ -23,12 +23,12 @@ spec:
               path: /actuator/health/readiness
             initialDelaySeconds: 60
             periodSeconds: 30
-          volumeMounts:
-            - name: secret
-              mountPath: "/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/embedding.user.properties"
-              readOnly: true
-              subPath: embedding.user.properties
-      volumes:
-        - name: secret
-          secret:
-            secretName: embedding-api-secret
+#          volumeMounts:
+#            - name: secret
+#              mountPath: "/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/embedding.user.properties"
+#              readOnly: true
+#              subPath: embedding.user.properties
+#      volumes:
+#        - name: secret
+#          secret:
+#            secretName: embedding-api-secret

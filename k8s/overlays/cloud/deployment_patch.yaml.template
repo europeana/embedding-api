@@ -11,7 +11,7 @@ spec:
         fluentd/multiline: 'true'
     spec:
       containers:
-        - name: myapi
+        - name: embedding-api
           imagePullPolicy: Always
           env:
             - name: CATALINA_OPTS
