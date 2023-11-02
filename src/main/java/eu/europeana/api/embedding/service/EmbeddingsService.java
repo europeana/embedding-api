@@ -102,6 +102,7 @@ public class EmbeddingsService {
     @SuppressWarnings("java:S2142") // no need to warn for no handling InterruptedException as the executor will
      // clean up after itself
     public EmbeddingResponse generateEmbeddings(EmbeddingRequestData data) throws EuropeanaApiException {
+        long start = System.currentTimeMillis();
         String output = null;
         ProcessExecutor executor = null;
         try {
@@ -129,7 +130,7 @@ public class EmbeddingsService {
         // Serialize output
         try {
             EmbeddingResponse response = serializer.readValue(output, EmbeddingResponse.class);
-            LOG.debug("Result: {}", response.getStatus());
+            LOG.debug("Result: {} in ms {}", response.getStatus(), System.currentTimeMillis() - start);
             return response;
         } catch (JsonProcessingException jpe) {
             throw new EmbedCmdlineException("Error parsing Embedding service output: " + output, jpe, true);
@@ -137,18 +138,20 @@ public class EmbeddingsService {
     }
 
     private ProcessExecutor createEmbedApplication(EmbeddingRequestData data) throws EuropeanaApiException {
+        long start = System.currentTimeMillis();
         String dataInput;
         try {
             dataInput = serializer.writeValueAsString(data);
         } catch (JsonProcessingException jpe) {
             throw new EmbedCmdlineException("Error serializing request data", jpe, true);
         }
+        LOG.debug("Parsed data in {} ms", System.currentTimeMillis() - start);
 
+        start = System.currentTimeMillis();
         int nrExecutors = executors.size();
         LOG.debug("Currently {} executors working", nrExecutors);
         if (nrExecutors < settings.getEmbedCmdMaxInstances()) {
             LOG.debug("Creating new embedding process...");
-            long start = System.currentTimeMillis();
             ProcessExecutor result = new ProcessExecutor()
                     .directory(new File(settings.getEmbedCmdPath()))
                     .command("python3.6", "./embeddings-commandline/europeana_embeddings_cmd.py", "--data=" + dataInput)
