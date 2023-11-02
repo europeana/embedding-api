@@ -111,7 +111,7 @@ public class EmbeddingsService {
             LOG.debug("Starting embedding executing...");
             output = executor.execute().outputUTF8();
         } catch (IOException | InterruptedException | TimeoutException e) {
-            throw new EmbedCmdlineException("Error running Embedding service: " + output, e, true);
+            throw new EmbedCmdlineException("Error running Embedding service: ", e, true);
         } catch (InvalidExitValueException e) {
             throw new EmbedCmdlineException("Error running Embedding service: " + output + " (exit code = " + e.getExitValue() + ")", e, false);
         } finally {
