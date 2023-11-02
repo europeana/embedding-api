@@ -118,7 +118,7 @@ public class EmbeddingsService {
                 executors.remove(executor);
             }
         }
-        LOG.debug("Result = {}", output);
+        LOG.trace("Result = {}", output);
         if (output == null) {
             throw new EmbedCmdlineException("No output received from Embedding service", null, false);
         }
@@ -128,12 +128,12 @@ public class EmbeddingsService {
 
         // Serialize output
         try {
-            return serializer.readValue(output, EmbeddingResponse.class);
+            EmbeddingResponse response = serializer.readValue(output, EmbeddingResponse.class);
+            LOG.debug("Result: {}", response.getStatus());
+            return response;
         } catch (JsonProcessingException jpe) {
             throw new EmbedCmdlineException("Error parsing Embedding service output: " + output, jpe, true);
         }
-
-
     }
 
     private ProcessExecutor createEmbedApplication(EmbeddingRequestData data) throws EuropeanaApiException {
