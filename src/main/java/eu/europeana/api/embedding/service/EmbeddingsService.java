@@ -8,6 +8,7 @@ import eu.europeana.api.embedding.config.EmbeddingSettings;
 import eu.europeana.api.embedding.exception.ConfigurationException;
 import eu.europeana.api.embedding.exception.EmbedCmdlineException;
 import eu.europeana.api.embedding.exception.EmbedCmdlineMaxInstancesException;
+import eu.europeana.api.embedding.exception.InputTooLongException;
 import eu.europeana.api.recommend.common.model.EmbeddingRequestData;
 import eu.europeana.api.recommend.common.model.EmbeddingResponse;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +37,8 @@ public class EmbeddingsService {
 
     private static final Logger LOG = LogManager.getLogger(EmbeddingsService.class);
 
+    private final int maxArgumentsSize;
+
     private EmbeddingSettings settings;
     private List<ProcessExecutor> executors;
     private ObjectMapper serializer;
@@ -49,6 +52,11 @@ public class EmbeddingsService {
         this.executors = Collections.synchronizedList(new ArrayList<ProcessExecutor>(settings.getEmbedCmdMaxInstances()));
         this.serializer = new ObjectMapper();
         this.serializer.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+
+        // Each OS has a maximum size of command-line parameters. We check it here so we can quickly return a 400
+        // response when we receive more data than that.
+        this.maxArgumentsSize = Integer.valueOf(runSimpleCommand("getconf", "ARG_MAX").trim());
+        LOG.info("OS max argument size = {}", maxArgumentsSize);
     }
 
     /**
@@ -111,7 +119,11 @@ public class EmbeddingsService {
             LOG.debug("Starting embedding executing...");
             output = executor.execute().outputUTF8();
         } catch (IOException | InterruptedException | TimeoutException e) {
-            throw new EmbedCmdlineException("Error running Embedding service: ", e, true);
+            if (e.getMessage().contains("Argument list too long")) {
+                // make sure we return 400 in this case
+                throw new InputTooLongException("Input is too long. Please keep below " + maxArgumentsSize + " characters", e);
+            }
+            throw new EmbedCmdlineException("Error running Embedding service", e, true);
         } catch (InvalidExitValueException e) {
             throw new EmbedCmdlineException("Error running Embedding service: " + output + " (exit code = " + e.getExitValue() + ")", e, false);
         } finally {
