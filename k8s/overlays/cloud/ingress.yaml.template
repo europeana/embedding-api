@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/server-alias: ${K8S_SERVER_ALIASES}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-send-timeout: 25
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 45
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 60
 spec:
   ingressClassName: public-iks-k8s-nginx
   tls:
