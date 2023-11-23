@@ -6,12 +6,8 @@ metadata:
     cert-manager.io/issuer: letsencrypt-production
     nginx.ingress.kubernetes.io/server-alias: ${K8S_SERVER_ALIASES}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: 20
-    ingress.kubernetes.io/proxy-send-timeout: 25
-    nginx.org/proxy-send-timeout: 30
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 35
-    ingress.kubernetes.io/proxy-read-timeout: 40
-    nginx.org/proxy-read-timeout: 45
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 25
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 45
 spec:
   ingressClassName: public-iks-k8s-nginx
   tls:
