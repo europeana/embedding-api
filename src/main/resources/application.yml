@@ -17,6 +17,9 @@ server:
     min-response-size: 4096
     mime-types: application/json, application/ld+json, application/xml, text/html, text/xml, text/plain
 
+  tomcat:
+    keep-alive-timeout: 55
+
 management:
   endpoints:
     web:
