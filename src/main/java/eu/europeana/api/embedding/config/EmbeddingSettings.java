@@ -25,10 +25,10 @@ public class EmbeddingSettings {
 
     @Value("${embedcmd.path}")
     private String embedCmdPath;
-    @Value("${embedcmd.timeout:60}")
+    @Value("${embedcmd.timeout}")
     private long embedCmdTimeout;
 
-    @Value("${embedcmd.max.instance:3}")
+    @Value("${embedcmd.max.instance}")
     private int embedCmdMaxInstances;
 
     @PostConstruct
