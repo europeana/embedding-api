@@ -15,5 +15,6 @@
         </Root>
         <Logger name="org.apache.http" level="INFO"/>
         <Logger name="eu.europeana.api.embedding.service.EmbeddingsService" level="DEBUG"/>
+        <Logger name="eu.europeana.api.embedding.service.Executor" level="TRACE"/>
     </Loggers>
 </Configuration>

@@ -23,25 +23,29 @@ public class EmbeddingSettings {
     private static final Logger LOG = LogManager.getLogger(EmbeddingSettings.class);
 
 
-    @Value("${embedcmd.path}")
-    private String embedCmdPath;
-    @Value("${embedcmd.timeout:60}")
-    private long embedCmdTimeout;
+    @Value("${executor.path}")
+    private String executorPath;
+    @Value("${executor.max.instance}")
+    private int executorMaxInstances;
+    @Value("${executor.port}")
+    private int executorFirstPort;
 
-    @Value("${embedcmd.max.instance:3}")
-    private int embedCmdMaxInstances;
+    @Value("${executor.restart.after}")
+    private int executorRestartAfter;
+
 
     @PostConstruct
     private void logImportantSettings() throws EuropeanaApiException {
-        embedCmdPath = trimAndAppendSlashIfNecessary("embedcmd.path", embedCmdPath);
+        executorPath = trimAndAppendSlashIfNecessary("embedcmd.path", executorPath);
         LOG.info("Embedding API settings:");
-        LOG.info("  Embed cmdline path: {}", embedCmdPath);
-        LOG.info("  Embed cmdline timeout: {}", embedCmdTimeout);
-        LOG.info("  Embed cmdline max instances: {}", embedCmdMaxInstances);
+        LOG.info("  Executor directory: {}", executorPath);
+        LOG.info("  Executor max instances: {}", executorMaxInstances);
+        LOG.info("  Executor ports: {} to {}", executorFirstPort, executorFirstPort + executorMaxInstances - 1);
+        LOG.info("  Executor restart after: {} processed records", executorRestartAfter);
     }
 
-    public String getEmbedCmdPath() {
-        return this.embedCmdPath;
+    public String getExecutorPath() {
+        return this.executorPath;
     }
 
     private String trimAndAppendSlashIfNecessary(String keyName, String value) throws EuropeanaApiException {
@@ -51,12 +55,15 @@ public class EmbeddingSettings {
         return value.trim() + (value.endsWith("/") ? "" : "/");
     }
 
-
-    public long getEmbedCmdTimeout() {
-        return embedCmdTimeout;
+    public int getExecutorMaxInstances() {
+        return executorMaxInstances;
     }
 
-    public int getEmbedCmdMaxInstances() {
-        return embedCmdMaxInstances;
+    public int getExecutorFirstPort() {
+        return executorFirstPort;
+    }
+
+    public int getExecutorRestartAfter() {
+        return executorRestartAfter;
     }
 }

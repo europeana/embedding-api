@@ -1,2 +1,3 @@
 #!/bin/bash
-python3 ./embeddings-commandline/europeana_embeddings_cmd.py --data='{"records": [{"id": "00101/40C346868A55C2D299F3E3A5387DFB5D1765292G","title": ["Pal cio Jamai, Meknes : exemplares de azulejos rabes"],"description": [" Bibliografia", "Bibliographic item"],"creator": [" S i m e s , J. M. dos Santos, 1907-1972"],"tags": [" P a l c i o Jamai (Meknes, Marrocos)", "Azulejos, Marrocos", "738.8(64)(084.121)"],"places": ["Marrocos"],"times": []}, {"id": "00101/40C346868A55C2D299F3E3A5387DFB5D1765292F","title": ["Pal cio Jamai, Meknes : exemplares de azulejos rabes"],"description": ["Monografia", "Monographic bibliographic item"],"creator": [" S i m e s , J. M. dos Santos, 1907-1972"],"tags": [" P a l c i o Jamai (Meknes, Marrocos)", "Azulejos, Marrocos", "738.8(64)(084.121)"],"places": ["Marrocos"],"times": []}]}'
+cd ./embeddings-python
+python3 ./europeana_embeddings_cmd.py --port=12001

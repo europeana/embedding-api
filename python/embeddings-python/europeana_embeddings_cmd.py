@@ -19,7 +19,7 @@
 
 ## October 2024. This is a modified version of the original Embeddings API created by Anacode.
 #  See also https://bitbucket.org/jhn-ngo/recsy-xx/src/master/src/engines/encoders/europeana-embeddings-api/
-#  Instead of a webserver, we changed the program into a command-line version.
+#  Instead of a webserver, we changed the program into a command-line application communication via a socket
 
 import os
 import psutil
@@ -27,6 +27,8 @@ import time
 import argparse
 import traceback
 import json
+import socket
+import answering_socket
 
 import joblib
 import numpy as np
@@ -47,19 +49,16 @@ def process_arguments():
     global VERBOSE
     if VERBOSE: print("Parsing arguments...")
     parser = argparse.ArgumentParser(description='Argument parser for the Embeddings API')
-    parser.add_argument('--data', type=str, help='JSON record data to parse (max size = 32K)')
+    parser.add_argument("-p", "--port", required="true", type=int, help="Port number for listening socket", )
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     args, unknown = parser.parse_known_args()
-    if VERBOSE: print("Unknown arguments: ", unknown)
+    if VERBOSE and unknown: print("Unknown arguments: ", unknown)
     try:
-        data = json.loads(args.data)
         if args.verbose:
             VERBOSE = True
-            print("Received data = ", data)
-        return data
+        return args.port
     except :
-         print("ERROR - Failed to parse input data: ", args.data)
-         exit()
+        return printAndReturnError("Failed to parse input data: ", args.data)
 
 
 def load_models():
@@ -68,7 +67,7 @@ def load_models():
     global LASER
     LASER = Laser()
     global REDUCE_MODEL
-    REDUCE_MODEL = joblib.load("embeddings-commandline/default_reduce_model.joblib")
+    REDUCE_MODEL = joblib.load("./default_reduce_model.joblib")
     if VERBOSE: print(print_memory("after loading models"))
 
 
@@ -204,16 +203,6 @@ def process_records(records_with_reduced_structure,
     return []
 
 
-def build_error(error, description):
-    """
-    This function returns an error record for the API output.
-    :param error: name of error
-    :param description: description of error
-    :return:
-    """
-    return {"error": error, "description": description}
-
-
 def recordobj(record):
     """
     Function for type check on API input argument "records".
@@ -228,23 +217,22 @@ def recordobj(record):
 
 
 class EmbeddingsResource():
-    def process(data):
+    def process(dataString):
         """
         API function to parse input records and produce the embeddings.
         :return:
         """
         try:
             result = {}
+            data = json.loads(dataString)
             try:
                 records = data["records"]
                 if VERBOSE: print("Received {} records.".format(len(records)))
             except:
                 traceback.print_exc()
-                print("ERROR - Could not find records field")
-                return result
+                return printAndReturnError("Could not find records field")
             if len(records) > 500:
-                print("ERROR - Too many records (max is 500)")
-                return result
+                return printAndReturnError("Too many records (max is 500)")
 
             steps = ["laser", "reduce", "normalize"]
             if VERBOSE: print("Executing the following steps: {}.".format(steps))
@@ -260,14 +248,41 @@ class EmbeddingsResource():
             return result
         except Exception as error:
             traceback.print_exc()
-            print("ERROR - ", error)
+            return printAndReturnError(error)
+
+
+def printAndReturnError(error):
+    print("ERROR - ", error)
+    result = {}
+    result["status"] = "error"
+    result["message"] = error # TODO escape chaacters that mess-up proper json format
+    return result
 
 
 if __name__ == '__main__':
-    data = process_arguments()
     load_models()
-    result = EmbeddingsResource.process(data)
-    # We output the final result (should be the only output when VERBOSE = False)
-    print(result)
+
+    port = process_arguments()
+    s = socket.socket()
+    try:
+        # It can take a second or 2 for a port to be released after shutdown
+        s.bind(('127.0.0.1', port))  # only allow local connections
+    except Exception as error:
+        if str(error).endswith("Address already in use"):
+            print("Port in use, retrying in 20 seconds...")
+            time.sleep(20)
+            try:
+                s.bind(('127.0.0.1', port))  # retry
+            except:
+                printAndReturnError(f"Failed to bind port {port}")
+                exit(-1)
+        else:
+            printAndReturnError(error)
+            exit(-1)
+
+    while True:
+        answering_socket.socket_listen(s, EmbeddingsResource.process, True)
+
+
     
 

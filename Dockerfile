@@ -3,11 +3,11 @@ FROM python:3.6-slim
 # Install Python application
 WORKDIR /opt/embeddings-python-app
 
-COPY /python/requirements36.txt .
+COPY /python/embeddings-python/requirements36.txt .
 
 RUN pip3.6 install -r requirements36.txt && python3 -m laserembeddings download-models
-COPY python/embeddings-commandline/default_reduce_model.joblib ./embeddings-commandline/
-COPY python/embeddings-commandline/europeana_embeddings_cmd.py ./embeddings-commandline/
+COPY python/embeddings-python/default_reduce_model.joblib ./
+COPY python/embeddings-python/*.py ./
 
 # Install Java
 RUN apt-get update && apt-get -y install openjdk-17-jdk-headless
