@@ -23,7 +23,7 @@ def socket_listen(socket, answer_callback_function, verbose):
             data = data + data_part.decode()
             if data_part.endswith(b'\n'):
                 break
-        if verbose: print(f"Received data: {data}")
+        #if verbose: print(f"Received data: {data}")
 
         if (data == 'TERMINATE\n'):
             print("Shutting down application")

@@ -81,7 +81,7 @@ public class Executor {
                 while (result == null) {
                     result = in.readLine();
                     LOG.trace("Waiting for answer...");
-                    Thread.sleep(750);
+                    Thread.sleep(500);
                 }
                 LOG.trace("Received answer: {}", result);
                 nrRecordsProcessed = nrRecordsProcessed + nrRecords;
