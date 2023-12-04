@@ -69,11 +69,11 @@ public class Executor {
      * @throws ExecutorException where there's a problem communicating with the Python process
      */
     public String sendData(String dataJson, int nrRecords) throws EuropeanaApiException {
-        LOG.debug("Opening socket on port {}", portNr);
         String result = null;
         try {
             // For local debugging fill in IP address of the Python Docker container instead
-           this.socket = new Socket("127.0.0.1", this.portNr);
+            LOG.debug("Opening socket on port {}", portNr);
+            this.socket = new Socket("127.0.0.1", this.portNr);
             try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true, Charset.defaultCharset());
                  BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.defaultCharset()))) {
                 LOG.trace("Sending json data: {}", dataJson);
@@ -87,7 +87,9 @@ public class Executor {
                 nrRecordsProcessed = nrRecordsProcessed + nrRecords;
             }
         } catch (IOException e) {
-            throw new ExecutorException("Executor not available. Error opening socket on port " + portNr, e, true);
+            Process p = process.getProcess();
+            LOG.error("Executor error: process pid {}, port {}, isAlive {}, exitValue {}", p.pid(), portNr, p.isAlive(), p.exitValue());
+            throw new ExecutorException("Executor not available!", e, true);
         } catch (InterruptedException e) {
             LOG.error("Interruption while waiting for Python process", e );
             Thread.currentThread().interrupt();
