@@ -105,7 +105,6 @@ public class EmbeddingsService {
             executorsFree.add(executor);
         }
 
-        LOG.debug("Result = {}", output);
         if (output == null) {
             throw new ExecutorException("No output received from Embedding executor service", null, false);
         }
