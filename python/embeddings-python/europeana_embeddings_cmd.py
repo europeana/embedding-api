@@ -264,13 +264,14 @@ if __name__ == '__main__':
 
     port = process_arguments()
     s = socket.socket()
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         # It can take a second or 2 for a port to be released after shutdown
         s.bind(('127.0.0.1', port))  # only allow local connections
     except Exception as error:
         if str(error).endswith("Address already in use"):
-            print("Port in use, retrying in 20 seconds...")
-            time.sleep(20)
+            print("Port in use, retrying in 10 seconds...")
+            time.sleep(10)
             try:
                 s.bind(('127.0.0.1', port))  # retry
             except:

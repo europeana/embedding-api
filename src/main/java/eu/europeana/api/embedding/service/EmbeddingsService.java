@@ -125,7 +125,7 @@ public class EmbeddingsService {
     }
 
     @PreDestroy
-    private void stopExecutors() {
+    private void stopExecutors() throws EuropeanaApiException {
         executorsFree.addAll(executorsBusy);
         while (!executorsFree.isEmpty()) {
             Executor executor = executorsFree.remove();

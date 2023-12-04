@@ -25,6 +25,7 @@ public class Executor {
     private final String directory;
 
     private int nrRecordsProcessed;
+    private Socket socket;
     private StartedProcess process;
 
     /**
@@ -72,7 +73,7 @@ public class Executor {
         String result = null;
         try {
             // For local debugging fill in IP address of the Python Docker container instead
-            Socket socket = new Socket("127.0.0.1", this.portNr);
+           this.socket = new Socket("127.0.0.1", this.portNr);
             try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true, Charset.defaultCharset());
                  BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.defaultCharset()))) {
                 LOG.trace("Sending json data: {}", dataJson);
@@ -126,16 +127,25 @@ public class Executor {
 
     /**
      * Kill the Python process of this executor.
+     * @throws EuropeanaApiException when there is an error closing the socket connection
      */
-    public void destroy() {
+    public void destroy() throws EuropeanaApiException {
         String processId = (process == null ? "null" : String.valueOf(process.getProcess().pid()));
-        LOG.debug("Destroying process {} (executor with port {}, nrProcessed = {})", processId, portNr, nrRecordsProcessed);
+
+        // To prevent 'hanging' open ports in the Python process, make sure we close the socket first
+        try {
+            LOG.debug("Closing socket {} to process {}...", portNr, processId);
+            this.socket.close();
+        } catch (IOException e) {
+            throw new ExecutorException("Error closing socket", e, true);
+        }
+
+        LOG.debug("Sending terminate signal to process {} (executor with port {}, nrProcessed = {})", processId, portNr, nrRecordsProcessed);
         try (Socket socket = new Socket("127.0.0.1", this.portNr);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true, Charset.defaultCharset())) {
             out.println("TERMINATE");
         } catch (IOException e) {
-            LOG.error("Error sending terminate signal to process {}", processId, e);
-            LOG.error("Forcing process kill...");
+            LOG.error("Error sending terminate signal to process {}. Forcing process kill...", processId, e);
             process.getProcess().destroyForcibly();
         }
     }
