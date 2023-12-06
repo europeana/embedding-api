@@ -20,7 +20,7 @@ def socket_listen(socket, answer_callback_function, verbose, id):
 
     conn, addr = socket.accept()  # wait until client established a connection
     with conn:
-        if verbose: print(f"{ID} Connection from {addr}")
+        if verbose: print(f"{ID} - Connection from {addr}")
 
         data = __read_data(conn)
         if (data == '{TERMINATE}\n'):
@@ -81,6 +81,6 @@ if __name__ == '__main__':
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('127.0.0.1', 12001)) # only allow local connections
     while True:
-        data = socket_listen(12001, s, dummy_callback_function, True)
+        data = socket_listen(s, dummy_callback_function, True, "TEST_PROCESS")
         print(f"{ID} - Data received = {data}")
 

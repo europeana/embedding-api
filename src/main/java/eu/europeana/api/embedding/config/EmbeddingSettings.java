@@ -27,10 +27,10 @@ public class EmbeddingSettings {
     private String executorPath;
     @Value("${executor.max.instance}")
     private int executorMaxInstances;
-    @Value("${executor.port}")
+    @Value("${executor.first.port}")
     private int executorFirstPort;
 
-    @Value("${executor.restart.after}")
+    @Value("${python.reload.after}")
     private int executorRestartAfter;
 
 
@@ -41,7 +41,7 @@ public class EmbeddingSettings {
         LOG.info("  Executor directory: {}", executorPath);
         LOG.info("  Executor max instances: {}", executorMaxInstances);
         LOG.info("  Executor ports: {} to {}", executorFirstPort, executorFirstPort + executorMaxInstances - 1);
-        LOG.info("  Executor restart after: {} processed records", executorRestartAfter);
+        LOG.info("  Python reload after: {} processed records", executorRestartAfter);
     }
 
     public String getExecutorPath() {

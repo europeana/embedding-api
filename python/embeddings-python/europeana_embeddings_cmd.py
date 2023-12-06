@@ -48,7 +48,7 @@ def process_arguments():
     if VERBOSE: print(f"{PID} - Parsing arguments...")
     parser = argparse.ArgumentParser(description='Argument parser for the Embeddings API')
     parser.add_argument("-p", "--port", required="true", type=int, help="Port number for listening socket", )
-    parser.add_argument("-r", "--reload_after", type=int, default=1000,
+    parser.add_argument("-r", "--reload_after", type=int, default=10000,
                         help="Reload the laser model after x amount of records (to prevent memory leak)")
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     args, unknown = parser.parse_known_args()
@@ -61,11 +61,30 @@ def process_arguments():
         return printAndReturnError("Failed to parse input data: ", args.data + error)
 
 
+class LaserModelWithReload():
+    """
+    This is a wrapper for the Laser model. It reloads the model after a specified number of calls to prevent memory leak.
+    """
+    def __init__(self, reload_after):
+        self.model = Laser()
+        self.reload_after = reload_after
+        self.n_calls = 0
+
+    def update(self, n_calls):
+        self.n_calls += n_calls
+        if self.n_calls >= self.reload_after:
+            start = time.time()
+            self.model = None
+            self.model = Laser()
+            end = time.time()
+            print(f"{PID} - Reloaded Laser model in {format((end - start) * 1000)} ms")
+            self.n_calls = 0
+
 
 def load_models(reload_after):
     if VERBOSE: print(f"{PID} - {print_memory()} before loading models")
     global LASER
-    LASER = Laser()
+    LASER = LaserModelWithReload(reload_after)
     global REDUCE_MODEL
     REDUCE_MODEL = joblib.load("./default_reduce_model.joblib")
     if VERBOSE: print(f"{PID} - {print_memory()} after loading models")
@@ -194,8 +213,8 @@ def process_records(records_with_reduced_structure,
     transformed_records = [transform_record(record, return_format="string") for record in
                            records_with_reduced_structure]
     if "laser" in steps:
-        processed_records = LASER.embed_sentences(transformed_records, lang="en")
-        #LASER.update(len(processed_records))
+        processed_records = LASER.model.embed_sentences(transformed_records, lang="en")
+        LASER.update(len(processed_records))
         if "reduce" in steps:
             processed_records = REDUCE_MODEL.transform(processed_records)
             if "normalize" in steps:
