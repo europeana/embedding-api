@@ -19,7 +19,7 @@
 
 ## October 2024. This is a modified version of the original Embeddings API created by Anacode.
 #  See also https://bitbucket.org/jhn-ngo/recsy-xx/src/master/src/engines/encoders/europeana-embeddings-api/
-#  Instead of a webserver, we changed the program into a command-line application communication via a socket
+#  Instead of a webserver, we changed the program into a command-line application communicating via a socket
 
 import os
 import psutil
@@ -36,46 +36,46 @@ from laserembeddings import Laser
 
 # Global variables
 VERBOSE = False
+PID = os.getpid()
+PROCESS = psutil.Process(PID)
 
-PID = psutil.Process(os.getpid())
-PROCESS = __file__.split("/")[-1].split(".")[0]
-
-workingdirectory = os.getcwd()
-if VERBOSE: print('Working directory:', workingdirectory)
+if VERBOSE: print(f"{PID} - Working directory: {os.getcwd()}")
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 
 def process_arguments():
     global VERBOSE
-    if VERBOSE: print("Parsing arguments...")
+    if VERBOSE: print(f"{PID} - Parsing arguments...")
     parser = argparse.ArgumentParser(description='Argument parser for the Embeddings API')
     parser.add_argument("-p", "--port", required="true", type=int, help="Port number for listening socket", )
+    parser.add_argument("-r", "--reload_after", type=int, default=1000,
+                        help="Reload the laser model after x amount of records (to prevent memory leak)")
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     args, unknown = parser.parse_known_args()
-    if VERBOSE and unknown: print("Unknown arguments: ", unknown)
+    if VERBOSE and unknown: print(f"{PID} - Unknown arguments: {unknown}")
     try:
         if args.verbose:
             VERBOSE = True
-        return args.port
-    except :
-        return printAndReturnError("Failed to parse input data: ", args.data)
+        return args.port, args.reload_after
+    except Exception as error:
+        return printAndReturnError("Failed to parse input data: ", args.data + error)
 
 
-def load_models():
-    if VERBOSE: print("Starting process {} ...".format(PROCESS))
-    if VERBOSE: print(print_memory())
+
+def load_models(reload_after):
+    if VERBOSE: print(f"{PID} - {print_memory()} before loading models")
     global LASER
     LASER = Laser()
     global REDUCE_MODEL
     REDUCE_MODEL = joblib.load("./default_reduce_model.joblib")
-    if VERBOSE: print(print_memory("after loading models"))
+    if VERBOSE: print(f"{PID} - {print_memory()} after loading models")
 
 
-def print_memory(suffix=""):
+def print_memory():
     # 28 sep 2023 PE: unit should be in bytes, so we convert to MiB.
     # However, numbers reported  does not match that of docker stats
     # Processing 2 simple records takes about 385 MiB says Docker whereas we report 498 MiB
-    return ('Mem usage {}: {} MiB'.format(suffix, PID.memory_info().rss / (1024 * 1024)))
+    return "{} MiB".format(PROCESS.memory_info().rss / (1024 * 1024))
 
 
 def compute_similarity(v1, v2, measure="cosine"):
@@ -190,11 +190,12 @@ def process_records(records_with_reduced_structure,
       Important: each step uses the output of the previous step. Thus, it is not possible to skip steps.
     :return: list of record embeddings (numpy array)
     """
-    if VERBOSE: print("Processing records...")
+    #if VERBOSE: print(f"{PID} - Processing records...")
     transformed_records = [transform_record(record, return_format="string") for record in
                            records_with_reduced_structure]
     if "laser" in steps:
         processed_records = LASER.embed_sentences(transformed_records, lang="en")
+        #LASER.update(len(processed_records))
         if "reduce" in steps:
             processed_records = REDUCE_MODEL.transform(processed_records)
             if "normalize" in steps:
@@ -209,7 +210,7 @@ def recordobj(record):
     :param record:
     :return:
     """
-    if VERBOSE: print("Check mandatory fields...")
+    if VERBOSE: print(f"{PID} - Check mandatory fields...")
     for field in ['id', 'title']:
         if field not in record:
             raise ValueError("ERROR missing field {}; could not parse record.".format(field))
@@ -227,7 +228,7 @@ class EmbeddingsResource():
             data = json.loads(dataString)
             try:
                 records = data["records"]
-                if VERBOSE: print("Received {} records.".format(len(records)))
+                if VERBOSE: print(f"{PID} - Received {len(records)} records")
             except:
                 traceback.print_exc()
                 return printAndReturnError("Could not find records field")
@@ -235,13 +236,12 @@ class EmbeddingsResource():
                 return printAndReturnError("Too many records (max is 500)")
 
             steps = ["laser", "reduce", "normalize"]
-            if VERBOSE: print("Executing the following steps: {}.".format(steps))
+            #if VERBOSE: print(f"Executing the following steps: {steps}")
 
             start = time.time()
             embeddings = process_records(records, steps=steps)
             end = time.time()
-            if VERBOSE: print("Processed {} records in {} sec.".format(len(records), abs(start - end)))
-            if VERBOSE: print(print_memory())
+            if VERBOSE: print(f"{PID} - Processed {len(records)} records in {abs(start - end)} sec. Mem usage: {print_memory()}")
             result["data"] = [{"id": record["id"], "embedding": embeddings[i].tolist()} for i, record in
                               enumerate(records)]
             result["status"] = "success"
@@ -252,7 +252,7 @@ class EmbeddingsResource():
 
 
 def printAndReturnError(error):
-    print("ERROR - ", error)
+    print(f"{PID} - ERROR: ", error)
     result = {}
     result["status"] = "error"
     result["message"] = error # TODO escape chaacters that mess-up proper json format
@@ -260,9 +260,9 @@ def printAndReturnError(error):
 
 
 if __name__ == '__main__':
-    load_models()
+    port, reload_after = process_arguments()
+    load_models(reload_after)
 
-    port = process_arguments()
     s = socket.socket()
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
@@ -270,7 +270,7 @@ if __name__ == '__main__':
         s.bind(('127.0.0.1', port))  # only allow local connections
     except Exception as error:
         if str(error).endswith("Address already in use"):
-            print("Port in use, retrying in 10 seconds...")
+            print(f"{PID} - Port {port} in use, retrying in 10 seconds...")
             time.sleep(10)
             try:
                 s.bind(('127.0.0.1', port))  # retry
@@ -282,7 +282,8 @@ if __name__ == '__main__':
             exit(-1)
 
     while True:
-        answering_socket.socket_listen(s, EmbeddingsResource.process, True)
+        answering_socket.socket_listen(s, EmbeddingsResource.process, VERBOSE, PID)
+
 
 
     

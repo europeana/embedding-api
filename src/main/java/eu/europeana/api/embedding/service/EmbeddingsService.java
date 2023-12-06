@@ -116,7 +116,7 @@ public class EmbeddingsService {
         // serialize output
         try {
             EmbeddingResponse response = serializer.readValue(output, EmbeddingResponse.class);
-            LOG.debug("Result: {} in ms {}", response.getStatus(), System.currentTimeMillis() - start);
+            LOG.debug("Result: {} in {} ms", response.getStatus(), System.currentTimeMillis() - start);
             return response;
         } catch (JsonProcessingException jpe) {
             throw new ExecutorException("Error parsing Embedding executor output: " + output, jpe, true);
