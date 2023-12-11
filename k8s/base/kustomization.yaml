@@ -2,10 +2,10 @@ resources:
   - deployment.yaml
 
 commonLabels:
-  app: embedding-api
+  app: embedding-api2
 
 # expects files to be in the same directory
 #secretGenerator:
-#  - name: embedding-api-secret
+#  - name: embedding-api2-secret
 #    files:
 #      - embedding.user.properties

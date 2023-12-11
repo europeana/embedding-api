@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: embedding-api-deployment
+  name: embedding-api2-deployment
 spec:
   # selector.matchLabels is provided via Kustomize
   template:
     spec:
       containers:
-        - name: embedding-api
+        - name: embedding-api2
           image: europeana/embedding-api
           ports:
             - containerPort: 8080
@@ -31,4 +31,4 @@ spec:
 #      volumes:
 #        - name: secret
 #          secret:
-#            secretName: embedding-api-secret
+#            secretName: embedding-api2-secret

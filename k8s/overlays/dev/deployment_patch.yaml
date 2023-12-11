@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: embedding-api-deployment
+  name: embedding-api2-deployment
 spec:
   template:
     spec:
       containers:
-        - name: embedding-api
+        - name: embedding-api2
           # required to use local image
           imagePullPolicy: Never

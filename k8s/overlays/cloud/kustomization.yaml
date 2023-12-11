@@ -8,4 +8,4 @@ patchesStrategicMerge:
   - deployment_patch.yaml
 
 commonLabels:
-  app: embedding-api
+  app: embedding-api2

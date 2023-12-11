@@ -110,7 +110,7 @@ public class EmbeddingsService {
             throw new ExecutorException("No output received from Embedding executor service", null, false);
         }
         if (output.toLowerCase(Locale.ROOT).startsWith("{'status': 'error')")) {
-            // TODO better parsing of error messages
+            // TODO better parsing of python error messages
             throw new ExecutorException(output, null, false);
         }
 
