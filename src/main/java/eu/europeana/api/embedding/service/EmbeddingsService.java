@@ -7,6 +7,7 @@ import eu.europeana.api.commons.error.EuropeanaApiException;
 import eu.europeana.api.embedding.config.EmbeddingSettings;
 import eu.europeana.api.embedding.exception.ConfigurationException;
 import eu.europeana.api.embedding.exception.ExecutorException;
+import eu.europeana.api.embedding.exception.NoExecutorAvailableException;
 import eu.europeana.api.recommend.common.model.EmbeddingRequestData;
 import eu.europeana.api.recommend.common.model.EmbeddingResponse;
 import org.apache.logging.log4j.LogManager;
@@ -91,7 +92,7 @@ public class EmbeddingsService {
 
         // get executor
         if (executorsFree.isEmpty()) {
-            throw new ExecutorException("Embedding executor service not available. Maximum number reached: " + settings.getExecutorMaxInstances(), false);
+            throw new NoExecutorAvailableException(settings.getExecutorMaxInstances());
         }
         Executor executor = executorsFree.remove();
         executorsBusy.add(executor);
