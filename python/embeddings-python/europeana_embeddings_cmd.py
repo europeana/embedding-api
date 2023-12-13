@@ -77,7 +77,7 @@ class LaserModelWithReload():
             self.model = None
             self.model = Laser()
             end = time.time()
-            print(f"{PID} - Reloaded Laser model in {format((end - start) * 1000)} ms")
+            print(f"{PID} - Reloaded Laser model in {format((end - start) * 1000)} ms", flush=True)
             self.n_calls = 0
 
 
