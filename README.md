@@ -13,9 +13,6 @@ processing multiple requests at the same time (at the cost of increasing memory 
  <sup>* A Maven installation is recommended, but you could use the accompanying `mvnw` (Linux, Mac OS) or `mvnw.cmd` (Windows) 
  files instead.
 
-## For local debugging
-Either use the Dockerfile in the python folder or make sure Python 3.6 is installed. 
-
 ## Run
 The application has a Tomcat web server that is embedded in Spring-Boot.
 
@@ -26,6 +23,13 @@ or
 go to the application root where the pom.xml is located and excute  
 `./mvnw spring-boot:run` (Linux, Mac OS) or `mvnw.cmd spring-boot:run` (Windows)
 
+
+## For local debugging
+Launch a Python process manually. For this either use the Dockerfile in the `python` folder or make sure Python 3.6 is installed.
+When using Docker to launch Python:
+1. Don't forget to map the port specified in the test-run.sh file.
+2. In the `Executor` class modify the 127.0.0.1 address to the IP of the Docker container and comment out the `createProcess` method. 
+3. In the `EmbeddingsService` class, comment out the Python 3.6 check in the `checkRequirements` method.
 
 ## License
 Licensed under the EUPL 1.2. For full details, see [LICENSE.md](LICENSE.md).
