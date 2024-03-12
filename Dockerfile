@@ -3,14 +3,16 @@ FROM python:3.6-slim
 # Install Python application
 WORKDIR /opt/embeddings-python-app
 
-COPY /python/embeddings-python/requirements36.txt .
+COPY python/embeddings-python/requirements36.txt .
 
 RUN pip3.6 install -r requirements36.txt && python3 -m laserembeddings download-models
 COPY python/embeddings-python/default_reduce_model.joblib ./
 COPY python/embeddings-python/*.py ./
 
-# Install Java
-RUN apt-get update && apt-get -y install openjdk-17-jdk-headless
+# Install Java (and curl so we can add health checks)
+RUN apt-get update && \
+    apt-get -y install openjdk-17-jdk-headless && \
+    apt-get -y install curl
 
 # Copy APM agent
 ENV ELASTIC_APM_VERSION 1.34.1
@@ -18,6 +20,6 @@ ADD https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/$ELASTIC_APM
 
 # Copy Java Embeddings API as a war (user properties doesn't contain sensitive data)
 WORKDIR /opt/embedding-api
-COPY target/embedding.war/ .
+COPY target/embedding.war .
 
 ENTRYPOINT ["java","-jar","/opt/embedding-api/embedding.war", "--server.port=8080"]
