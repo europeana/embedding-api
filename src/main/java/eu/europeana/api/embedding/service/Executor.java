@@ -1,7 +1,7 @@
 package eu.europeana.api.embedding.service;
 
 import com.google.common.collect.Lists;
-import eu.europeana.api.commons.error.EuropeanaApiException;
+import eu.europeana.api.commons_sb3.error.EuropeanaApiException;
 import eu.europeana.api.embedding.exception.ExecutorException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,6 +1,6 @@
 package eu.europeana.api.embedding.web;
 
-import eu.europeana.api.commons.error.EuropeanaApiException;
+import eu.europeana.api.commons_sb3.error.EuropeanaApiException;
 import eu.europeana.api.embedding.service.EmbeddingsService;
 import eu.europeana.api.recommend.common.model.EmbeddingRequestData;
 import eu.europeana.api.recommend.common.model.EmbeddingResponse;
