@@ -10,16 +10,15 @@ import eu.europeana.api.embedding.exception.ExecutorException;
 import eu.europeana.api.embedding.exception.NoExecutorAvailableException;
 import eu.europeana.api.recommend.common.model.EmbeddingRequestData;
 import eu.europeana.api.recommend.common.model.EmbeddingResponse;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -32,7 +31,7 @@ public class EmbeddingsService {
     private static final Logger LOG = LogManager.getLogger(EmbeddingsService.class);
 
     private EmbeddingSettings settings;
-    private ConcurrentLinkedQueue<Executor> executorsFree;
+    private ConcurrentLinkedQueue<Executor> executorsFree; // linked queue so each executor gets its turn
     private List<Executor> executorsBusy;
     private ObjectMapper serializer;
 
@@ -124,8 +123,30 @@ public class EmbeddingsService {
         }
     }
 
+    /**
+     *
+     * @return textual representation of the status of the executors
+     */
+    public synchronized String getStatus() {
+        StringBuilder s = new StringBuilder("Executors:\n");
+        Map<Integer, String> executorInfo = new TreeMap<>();
+        for (Executor executor : executorsBusy) {
+            ImmutablePair<Integer, String> exInfo = executor.getInfo();
+            executorInfo.put(exInfo.left, exInfo.right + " - BUSY");
+        }
+        for (Executor executor : executorsFree) {
+            ImmutablePair<Integer, String> exInfo = executor.getInfo();
+            executorInfo.put(exInfo.left, exInfo.right + " - free");
+        }
+        // generate output
+        for (String info : executorInfo.values()) {
+            s.append(" " + info + "\n");
+        }
+        return s.toString();
+    }
+
     @PreDestroy
-    private void stopExecutors() throws EuropeanaApiException {
+    private void stopExecutors() {
         executorsFree.addAll(executorsBusy);
         while (!executorsFree.isEmpty()) {
             Executor executor = executorsFree.remove();

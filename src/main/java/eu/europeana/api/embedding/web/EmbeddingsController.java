@@ -5,6 +5,7 @@ import eu.europeana.api.embedding.service.EmbeddingsService;
 import eu.europeana.api.recommend.common.model.EmbeddingRequestData;
 import eu.europeana.api.recommend.common.model.EmbeddingResponse;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +32,11 @@ public class EmbeddingsController {
     @PostMapping(value = "/embedding_api/embeddings", produces = MediaType.APPLICATION_JSON_VALUE)
     public EmbeddingResponse embeddings(@RequestBody EmbeddingRequestData embeddingRequestData) throws EuropeanaApiException {
         return embeddingsService.generateEmbeddings(embeddingRequestData);
+    }
+
+    @GetMapping(value = "/embedding_api/status", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String status() {
+        return embeddingsService.getStatus();
     }
 
 }

@@ -3,6 +3,7 @@ package eu.europeana.api.embedding.service;
 import com.google.common.collect.Lists;
 import eu.europeana.api.commons_sb3.error.EuropeanaApiException;
 import eu.europeana.api.embedding.exception.ExecutorException;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -12,7 +13,9 @@ import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class that is responsible for (re)starting and communicating with a Python process
@@ -47,6 +50,26 @@ public class Executor {
         processLaunchCommand.add("--port=" + portNr);
         processLaunchCommand.add("--reload_after=" + maxRecords);
         this.process = createProcess(processLaunchCommand.toArray(new String[0]));
+    }
+
+    /**
+     * @return the port number to the python process
+     */
+    public int getPortNr() {
+        return this.portNr;
+    }
+
+    /**
+     * @return string containing basic information about the python process
+     */
+    public ImmutablePair<Integer, String> getInfo() {
+        Process p = this.process.getProcess();
+        String result = "  portnr = " + portNr + ", pid = " + p.pid() + ", isAlive = " + p.isAlive();
+        Optional<Duration> duration = p.info().totalCpuDuration();
+        if (duration.isPresent()) {
+            result = result + ", CPU duration = "+ duration.get().getSeconds();
+        }
+        return new ImmutablePair<>(portNr, result);
     }
 
     /**
@@ -110,9 +133,8 @@ public class Executor {
 
     /**
      * Kill the Python process of this executor.
-     * @throws EuropeanaApiException when there is an error closing the socket connection
      */
-    public void destroy() throws EuropeanaApiException {
+    public void destroy()  {
         String processId = (process == null ? "null" : String.valueOf(process.getProcess().pid()));
 
         LOG.debug("Sending terminate signal to process {} (executor with port {})", processId, portNr);
