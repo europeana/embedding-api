@@ -6,16 +6,16 @@ services:
     container_name: embedding-api
     image: europeana/embedding-api:main
     environment:
-      # Increasing instances above 2 usually reduces performance quite a lot
-      EXECUTOR_MAX_INSTANCE: 2
+      EXECUTOR_MAX_INSTANCE: 4
+
     deploy:
       resources:
         # Enabling GPU improves performance quite a lot but requires an NVIDIA card
-#        reservations:
-#          devices:
-#            - driver: nvidia
-#              count: 1
-#              capabilities: [gpu]
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
         limits:
           memory: 16G           
     healthcheck:

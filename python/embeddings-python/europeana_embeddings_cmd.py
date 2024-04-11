@@ -33,6 +33,7 @@ import answering_socket
 import joblib
 import numpy as np
 from laserembeddings import Laser
+import torch
 
 # Global variables
 VERBOSE = False
@@ -40,7 +41,8 @@ PID = os.getpid()
 PROCESS = psutil.Process(PID)
 
 if VERBOSE: print(f"{PID} - Working directory: {os.getcwd()}")
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
+#os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 
 def process_arguments():
@@ -280,6 +282,7 @@ def printAndReturnError(error):
 
 if __name__ == '__main__':
     port, reload_after = process_arguments()
+    if VERBOSE: print(f"{PID} - torch.cuda.is_available = {torch.cuda.is_available()}")
     load_models(reload_after)
 
     s = socket.socket()
