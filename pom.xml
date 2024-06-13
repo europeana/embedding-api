@@ -25,7 +25,7 @@
 
         <rest-assured.version>5.4.0</rest-assured.version>
         <encoder.version>1.2.3</encoder.version>
-        <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
+        <dependency-check-maven.version>9.2.0</dependency-check-maven.version>
     </properties>
 
     <dependencyManagement>
@@ -175,12 +175,14 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>${dependency-check-maven.version}</version>
                 <configuration>
-                    <failBuildOnCVSS>8</failBuildOnCVSS>
+                    <nvdApiKeyEnvironmentVariable>NVD_APIKEY</nvdApiKeyEnvironmentVariable>
+                    <!-- see EA-3505 why we host the known exploited vulnerabilties file ourselves -->
+                    <knownExploitedUrl>https://artifactory.eanadev.org/artifactory/ext-release-local/gov/cisa/www/known_exploited_vulnerabilities.json</knownExploitedUrl>
+                    <failBuildOnCVSS>9</failBuildOnCVSS>
                     <suppressionFiles>
                         <suppressionFile>owasp-suppress.xml</suppressionFile>
                     </suppressionFiles>
-                    <knownExploitedUrl>http://artifactory.eanadev.org/artifactory/ext-release-local/gov/cisa/www/known_exploited_vulnerabilities.json</knownExploitedUrl>
-                </configuration>
+               </configuration>
                 <executions>
                     <execution>
                         <goals>
