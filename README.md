@@ -47,9 +47,16 @@ in the [k8s](k8s) folder
 
 ## Deployment to a physical server
 For good performance we recommend deploying the Embedding API on a server that has a recent NVIDIA card. This will
-speed up embedding generation significantly.
+speed up embedding generation significantly. 
 
-For this copy the the project's [docker-compose.yml](docker-compose.yml) file to the server and run `docker-compose up`.
+### Prerequisites 
+* [NVIDIA graphics drivers](https://ubuntu.com/server/docs/nvidia-drivers-installation) are installed
+* [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) is installed (and the system is restarted after installation)
+* Run `nvidia-smi` to check if the GPU can be accessed
+* Docker is installed
+  
+### Installation 
+Copy the the project's [docker-compose.yml](docker-compose.yml) file to the server and run `docker-compose up`.
 
 ## License
 Licensed under the EUPL 1.2. For full details, see [LICENSE.md](LICENSE.md).
